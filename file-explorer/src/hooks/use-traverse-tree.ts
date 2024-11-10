@@ -21,7 +21,24 @@ const useTraverseTree = () => {
     return { ...tree, items: latestNode };
   };
 
-  const deleteNode = (tree, folderId, item, isFolder) => {};
+  const deleteNode = (tree, nodeId) => {
+    // Base case: If this node is the one to delete, return null
+    if (tree.id === nodeId) {
+      return null;
+    }
+
+    // If the node is a folder, process each item immutably
+    if (tree.isFolder && tree.items) {
+      const updatedItems = tree.items
+        .map((child) => deleteNode(child, nodeId)) // Recursively apply delete to children
+        .filter((child) => child !== null); // Remove any deleted (null) nodes
+
+      return { ...tree, items: updatedItems };
+    }
+
+    // Return the unchanged node if it does not match nodeId
+    return tree;
+  };
 
   const renameNode = () => {};
 

@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const Folder = ({ handleInsertNode, explorer }) => {
+const Folder = ({ handleInsertNode, handleDeleteNode, explorer }) => {
   const [expand, setExpand] = useState(false);
   const [showInput, setShowInput] = useState({
     visible: false,
@@ -31,6 +31,12 @@ const Folder = ({ handleInsertNode, explorer }) => {
       setShowInput({ ...showInput, visible: false });
     }
   };
+
+  const handleDeleteFolder = (e) => {
+    e.stopPropagation();
+    handleDeleteNode(explorer.id);
+    setShowInput({ ...showInput, visible: false });
+  };
   console.log("explorer", explorer);
   if (explorer.isFolder) {
     return (
@@ -49,6 +55,12 @@ const Folder = ({ handleInsertNode, explorer }) => {
               onClick={(e) => handleNewFile(e, false)}
             >
               file +
+            </button>
+            <button
+              className="delete-btn"
+              onClick={(e) => handleDeleteFolder(e, true)}
+            >
+              folder -
             </button>
           </div>
         </div>
@@ -69,6 +81,7 @@ const Folder = ({ handleInsertNode, explorer }) => {
             return (
               <Folder
                 handleInsertNode={handleInsertNode}
+                handleDeleteNode={handleDeleteNode}
                 explorer={e}
                 key={e.id}
               >
@@ -80,7 +93,17 @@ const Folder = ({ handleInsertNode, explorer }) => {
       </div>
     );
   } else {
-    return <span className="file">📄 {explorer.name}</span>;
+    return (
+      <div style={{ display: "flex", gap: "10px" }}>
+        <div className="file">📄 {explorer.name}</div>
+        <button
+          className="delete-btn"
+          onClick={(e) => handleDeleteFolder(e, true)}
+        >
+          file -
+        </button>
+      </div>
+    );
   }
 };
 
