@@ -40,7 +40,21 @@ const useTraverseTree = () => {
     return tree;
   };
 
-  const renameNode = () => {};
+  const renameNode = (tree, nodeId, newName) => {
+    // Base case: If this node is the one to rename
+    if (tree.id === nodeId) {
+      return { ...tree, name: newName };
+    }
+
+    // If the node is a folder, process each item immutably
+    if (tree.isFolder && tree.items) {
+      const updatedItems = tree.items.map((item) => {
+        return renameNode(item, nodeId, newName);
+      });
+      return { ...tree, items: updatedItems };
+    }
+    return tree;
+  };
 
   return { insertNode, deleteNode, renameNode };
 };

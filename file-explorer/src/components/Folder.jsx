@@ -1,12 +1,20 @@
 import { useState } from "react";
 
-const Folder = ({ handleInsertNode, handleDeleteNode, explorer }) => {
+const Folder = ({
+  handleInsertNode,
+  handleDeleteNode,
+  handleRenameNode,
+  explorer,
+}) => {
   const [expand, setExpand] = useState(false);
   const [showInput, setShowInput] = useState({
     visible: false,
     isFolder: null,
   });
-
+  const [rename, setRename] = useState({
+    visible: false,
+    isFolder: null,
+  });
   const handleNewFolder = (e, isFolder) => {
     e.stopPropagation();
     setExpand(true);
@@ -32,12 +40,29 @@ const Folder = ({ handleInsertNode, handleDeleteNode, explorer }) => {
     }
   };
 
+  const onRenameFolder = (e) => {
+    if (e.keyCode === 13 && e.target.value) {
+      handleRenameNode(explorer.id, e.target.value);
+      setShowInput({ ...showInput, visible: false });
+      setRename({ ...rename, visible: false });
+    }
+  };
+
   const handleDeleteFolder = (e) => {
     e.stopPropagation();
     handleDeleteNode(explorer.id);
     setShowInput({ ...showInput, visible: false });
   };
-  console.log("explorer", explorer);
+  const handleRenameFileFolder = (e, isFolder) => {
+    e.stopPropagation();
+    if (isFolder === true) {
+      setExpand(true);
+    }
+    setRename({
+      visible: true,
+      isFolder: isFolder,
+    });
+  };
   if (explorer.isFolder) {
     return (
       <div style={{ marginTop: 5 }}>
@@ -62,6 +87,12 @@ const Folder = ({ handleInsertNode, handleDeleteNode, explorer }) => {
             >
               folder -
             </button>
+            <button
+              className="delete-btn"
+              onClick={(e) => handleRenameFileFolder(e, true)}
+            >
+              rename
+            </button>
           </div>
         </div>
         <div style={{ display: expand ? "block" : "none", paddingLeft: 25 }}>
@@ -77,11 +108,25 @@ const Folder = ({ handleInsertNode, handleDeleteNode, explorer }) => {
               />
             </div>
           )}
+          {rename.visible && (
+            <div className="inputContainer">
+              <span>{rename.isFolder ? "📁" : "📄"}</span>
+              <input
+                type="text"
+                className="inputContainer__input"
+                autoFocus
+                placeholder={explorer.name}
+                onKeyDown={(e) => onRenameFolder(e)}
+                onBlur={() => setRename({ ...rename, visible: false })}
+              />
+            </div>
+          )}
           {explorer.items.map((e) => {
             return (
               <Folder
                 handleInsertNode={handleInsertNode}
                 handleDeleteNode={handleDeleteNode}
+                handleRenameNode={handleRenameNode}
                 explorer={e}
                 key={e.id}
               >
@@ -102,6 +147,22 @@ const Folder = ({ handleInsertNode, handleDeleteNode, explorer }) => {
         >
           file -
         </button>
+        <button
+          className="delete-btn"
+          onClick={(e) => handleRenameFileFolder(e, false)}
+        >
+          rename
+        </button>
+        {rename.visible && !rename.isFolder && (
+          <input
+            type="text"
+            className="inputContainer__input"
+            autoFocus
+            placeholder={explorer.name}
+            onKeyDown={(e) => onRenameFolder(e)}
+            onBlur={() => setRename({ ...rename, visible: false })}
+          />
+        )}
       </div>
     );
   }
